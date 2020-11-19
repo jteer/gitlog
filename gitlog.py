@@ -73,8 +73,7 @@ def get_cmd_output(log_limit, project_path, git_log_paths):
     return logoutput_by_line
 
 def convert_to_json(git_log):
-    return git_log 
-    # json.dumps(git_log, sort_keys=False, indent=4)
+    return json.dumps(git_log, sort_keys=False, indent=4)
 
 def get_history(log_limit, project_path, git_log_paths):
     log_output = get_cmd_output(log_limit, project_path, git_log_paths)
