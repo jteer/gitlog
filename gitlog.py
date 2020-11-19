@@ -8,7 +8,6 @@ Log_Commit_Marker = 'PARSEDGITCOMMIT'
 Log_Message_Marker = 'PARSEDGITMESSAGE'
 Log_File_Marker = 'PARSEDGITMESSAGE'
 
-
 def parse_git_log(log_output):
     if not log_output:
         return
@@ -24,7 +23,6 @@ def parse_git_log(log_output):
     if buffer:
         parsed_commits.append(parse_commit(buffer))
     return parsed_commits
-
 
 def parse_commit(buffer):
     commit = {
@@ -59,14 +57,7 @@ def parse_commit(buffer):
 
     return commit
 
-
-if __name__ == "__main__":
-    # py .\main.py 30 <project_path>
-    args = sys.argv
-    log_limit = args[1]
-    project_path = args[2]
-    git_log_paths = args[3:]
-
+def get_cmd_output(log_limit, project_path, git_log_paths):
     # https://git-scm.com/docs/pretty-formats
     git_log_format = f'{Log_Commit_Marker}%n%H%n%an%n%ae%n%aD%n{Log_Message_Marker}%n%B%n{Log_File_Marker}'
     git_log_command = ['git', 'log', '--pretty=oneline', '--name-status',
@@ -79,6 +70,23 @@ if __name__ == "__main__":
     command_output.check_returncode()
     logoutput = command_output.stdout
     logoutput_by_line = list(filter(None, logoutput.splitlines()))
-    git_log = parse_git_log(logoutput_by_line)
-    git_log_json = json.dumps(git_log, sort_keys=False, indent=4)
+    return logoutput_by_line
+
+def convert_to_json(git_log):
+    return git_log 
+    # json.dumps(git_log, sort_keys=False, indent=4)
+
+def get_history(log_limit, project_path, git_log_paths):
+    log_output = get_cmd_output(log_limit, project_path, git_log_paths)
+    git_log = parse_git_log(log_output)
+    git_log_json = convert_to_json(git_log)
+    return git_log_json
+
+if __name__ == "__main__":
+    args = sys.argv
+    log_limit = args[1]
+    project_path = args[2]
+    git_log_paths = args[3:]
+    
+    git_log_json = get_history(log_limit, project_path, git_log_paths)
     print(git_log_json)
