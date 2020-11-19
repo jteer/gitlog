@@ -6,7 +6,7 @@ import re
 
 Log_Commit_Marker = 'PARSEDGITCOMMIT'
 Log_Message_Marker = 'PARSEDGITMESSAGE'
-Log_File_Marker = 'PARSEDGITMESSAGE'
+Log_File_Marker = 'PARSEDGITFILES'
 
 def parse_git_log(log_output):
     if not log_output:
@@ -14,10 +14,11 @@ def parse_git_log(log_output):
     parsed_commits = []
     buffer = []
     for line in log_output:
-        if line == Log_Commit_Marker and buffer:
-            commit = parse_commit(buffer)
-            parsed_commits.append(commit)
-            buffer.clear()
+        if line == Log_Commit_Marker:
+            if buffer:
+                commit = parse_commit(buffer)
+                parsed_commits.append(commit)
+                buffer.clear()
         else:
             buffer.append(line)
     if buffer:
@@ -29,7 +30,7 @@ def parse_commit(buffer):
         'commit_hash': buffer[0],
         'commit_author_name': buffer[1],
         'commit_author_email': buffer[2],
-        'commit_data': buffer[3],
+        'commit_date': buffer[3],
     }
 
     message_index = buffer.index(Log_Message_Marker)
